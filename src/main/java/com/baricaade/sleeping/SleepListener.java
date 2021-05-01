@@ -8,32 +8,37 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerBedEnterEvent;
 
+import java.util.ArrayList;
+
+
 public class SleepListener implements Listener {
     private final SleepingPlugin plugin;
+    private final ArrayList<String> sleepingWorlds = new ArrayList<>();
 
     public SleepListener(SleepingPlugin plugin) {
         this.plugin = plugin;
     }
 
     @EventHandler
-    public void onBedEnterEvent(PlayerBedEnterEvent event) {
-        Player player = event.getPlayer();
-
-        if(event.getBedEnterResult() != PlayerBedEnterEvent.BedEnterResult.OK) {
+    public void onBedEnter(PlayerBedEnterEvent event) {
+        if(!event.getBedEnterResult().equals(PlayerBedEnterEvent.BedEnterResult.OK)) {
             return;
         }
 
+        Player player = event.getPlayer();
+        World world = event.getBed().getWorld();
+
+        if(this.sleepingWorlds.contains(world.getName())) {
+            event.setCancelled(true);
+            return; // someone is already sleeping in this world, cancel
+        }
+
+        this.sleepingWorlds.add(world.getName());
+
         Bukkit.getScheduler().runTaskLater(this.plugin, () -> {
-            World world = Bukkit.getWorld("world");
-
-            if(world == null) {
-                player.sendMessage(ChatColor.RED + "You are not in the proper world for one-player sleeping!");
-                return; // not proper world, exit task
-            }
-
             world.setTime(0);
-            Bukkit.broadcastMessage(ChatColor.GREEN + "Player " + player.getName() + " has slept in a bed!");
-        }, 30L);
+            Bukkit.broadcastMessage(ChatColor.GREEN + "Player " + player.getName() + "has slept in a bed in world " + world.getName() + "!");
+            this.sleepingWorlds.remove(world.getName());
+        }, 50L);
     }
-
 }
