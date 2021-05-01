@@ -10,9 +10,10 @@ import org.bukkit.event.player.PlayerBedEnterEvent;
 
 import java.util.ArrayList;
 
-
 public class SleepListener implements Listener {
     private final SleepingPlugin plugin;
+
+    /** A list of worlds that have a player sleeping in them */
     private final ArrayList<String> sleepingWorlds = new ArrayList<>();
 
     public SleepListener(SleepingPlugin plugin) {
@@ -37,7 +38,7 @@ public class SleepListener implements Listener {
 
         Bukkit.getScheduler().runTaskLater(this.plugin, () -> {
             world.setTime(0);
-            Bukkit.broadcastMessage(ChatColor.GREEN + "Player " + player.getName() + "has slept in a bed in world " + world.getName() + "!");
+            Bukkit.broadcastMessage(ChatColor.GREEN + "Player " + player.getName() + " has slept in a bed in world \"" + world.getName() + "\"!");
             this.sleepingWorlds.remove(world.getName());
         }, 50L);
     }
