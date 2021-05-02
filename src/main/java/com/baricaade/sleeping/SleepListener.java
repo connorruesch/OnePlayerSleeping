@@ -16,8 +16,8 @@ import java.util.Map;
 public class SleepListener implements Listener {
     private final SleepingPlugin plugin;
 
-    /** A map of worlds with players sleeping in them, and their respective sleep tasks */
-    private final Map<String, BukkitTask> sleepingWorlds = new HashMap<>();
+    /** A map of worlds with players sleeping in them, and their respective sleep task ids */
+    private final Map<String, Integer> sleepingWorlds = new HashMap<>();
 
     public SleepListener(SleepingPlugin plugin) {
         this.plugin = plugin;
@@ -45,15 +45,15 @@ public class SleepListener implements Listener {
         }, 50L);
 
         // add the task & world name to sleeping worlds
-        this.sleepingWorlds.put(world.getName(), task);
+        this.sleepingWorlds.put(world.getName(), task.getTaskId());
     }
 
     @EventHandler
     public void onBedLeave(PlayerBedLeaveEvent event) {
         String worldName = event.getBed().getWorld().getName();
+        int task = this.sleepingWorlds.get(worldName);
 
-        // Cancel task and remove from sleeping worlds
-        this.sleepingWorlds.get(worldName).cancel();
-        this.sleepingWorlds.remove(worldName);
+        // cancel the ongoing task
+        Bukkit.getScheduler().cancelTask(task);
     }
 }
