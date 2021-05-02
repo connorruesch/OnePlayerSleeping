@@ -6,7 +6,7 @@
 
     <groupId>com.baricaade</groupId>
     <artifactId>sleep</artifactId>
-    <version>1.0</version>
+    <version>1.0.1</version>
     <name>OnePlayerSleeping</name>
     <description>One player sleeping plugin by Baricaade.</description>
     <packaging>jar</packaging>
