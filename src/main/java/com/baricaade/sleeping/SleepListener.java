@@ -7,14 +7,17 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerBedEnterEvent;
+import org.bukkit.event.player.PlayerBedLeaveEvent;
+import org.bukkit.scheduler.BukkitTask;
 
-import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class SleepListener implements Listener {
     private final SleepingPlugin plugin;
 
-    /** A list of worlds that have a player sleeping in them */
-    private final ArrayList<String> sleepingWorlds = new ArrayList<>();
+    /** A map of worlds with players sleeping in them, and their respective sleep tasks */
+    private final Map<String, BukkitTask> sleepingWorlds = new HashMap<>();
 
     public SleepListener(SleepingPlugin plugin) {
         this.plugin = plugin;
@@ -29,17 +32,28 @@ public class SleepListener implements Listener {
         Player player = event.getPlayer();
         World world = event.getBed().getWorld();
 
-        if(this.sleepingWorlds.contains(world.getName())) {
+        if(this.sleepingWorlds.containsKey(world.getName())) {
             event.setCancelled(true);
             return; // someone is already sleeping in this world, cancel
         }
 
-        this.sleepingWorlds.add(world.getName());
-
-        Bukkit.getScheduler().runTaskLater(this.plugin, () -> {
+        // schedule sleep task
+        BukkitTask task = Bukkit.getScheduler().runTaskLater(this.plugin, () -> {
             world.setTime(0);
             Bukkit.broadcastMessage(ChatColor.GREEN + "Player " + player.getName() + " has slept in a bed in world \"" + world.getName() + "\"!");
             this.sleepingWorlds.remove(world.getName());
         }, 50L);
+
+        // add the task & world name to sleeping worlds
+        this.sleepingWorlds.put(world.getName(), task);
+    }
+
+    @EventHandler
+    public void onBedLeave(PlayerBedLeaveEvent event) {
+        String worldName = event.getBed().getWorld().getName();
+
+        // Cancel task and remove from sleeping worlds
+        this.sleepingWorlds.get(worldName).cancel();
+        this.sleepingWorlds.remove(worldName);
     }
 }
