@@ -1,0 +1,15 @@
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+#
+# ONE PLAYER SLEEPING
+# Author: Baricaade
+# Website: https://baricaade.com/
+#
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+# What message should be sent to players when someone is sleeping?
+# Use {player} for the player's username.
+sleep-message: '&a➥ &3Player {player} is now sleeping in their bed!'
+
+# What message should be sent when a player cancels their sleep?
+# Use {player} for the player's username.
+sleep-cancel-message: '&4➥ &cPlayer {player} has cancelled the sleeping process!'
