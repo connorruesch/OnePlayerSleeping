@@ -48,6 +48,7 @@ public class SleepListener implements Listener {
 
         // cancel the sleep task if player leaves their bed
         task.cancel();
+        this.sleepingWorlds.remove(world.getName());
         Bukkit.broadcastMessage(ChatColor.RED + "A player has left their bed! The sleep has been canceled.");
     }
 }
