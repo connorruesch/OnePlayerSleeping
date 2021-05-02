@@ -1,4 +1,6 @@
 name: 'OnePlayerSleeping'
 version: ${project.version}
 description: ${project.description}
+author: Baricaade
 main: com.baricaade.sleeping.SleepingPlugin
+api-version: 1.16

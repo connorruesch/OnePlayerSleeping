@@ -16,44 +16,38 @@ import java.util.Map;
 public class SleepListener implements Listener {
     private final SleepingPlugin plugin;
 
-    /** A map of worlds with players sleeping in them, and their respective sleep task ids */
-    private final Map<String, Integer> sleepingWorlds = new HashMap<>();
+    /** A list of worlds with players sleeping in them & their tasks */
+    private final Map<String, BukkitTask> sleepingWorlds = new HashMap<>();
 
     public SleepListener(SleepingPlugin plugin) {
         this.plugin = plugin;
     }
 
     @EventHandler
-    public void onBedEnter(PlayerBedEnterEvent event) {
-        if(!event.getBedEnterResult().equals(PlayerBedEnterEvent.BedEnterResult.OK)) {
+    public void onPlayerBedEnter(PlayerBedEnterEvent e) {
+        if(!e.getBedEnterResult().equals(PlayerBedEnterEvent.BedEnterResult.OK)) {
             return;
         }
 
-        Player player = event.getPlayer();
-        World world = event.getBed().getWorld();
+        World world = e.getBed().getWorld();
 
-        if(this.sleepingWorlds.containsKey(world.getName())) {
-            event.setCancelled(true);
-            return; // someone is already sleeping in this world, cancel
-        }
-
-        // schedule sleep task
-        BukkitTask task = Bukkit.getScheduler().runTaskLater(this.plugin, () -> {
+        this.sleepingWorlds.computeIfAbsent(world.getName(), id -> Bukkit.getScheduler().runTaskLater(this.plugin, () -> {
             world.setTime(0);
-            Bukkit.broadcastMessage(ChatColor.GREEN + "Player " + player.getName() + " has slept in a bed in world \"" + world.getName() + "\"!");
+            Bukkit.broadcastMessage(ChatColor.DARK_AQUA + "A player has slept in bed! It is now morning.");
             this.sleepingWorlds.remove(world.getName());
-        }, 50L);
-
-        // add the task & world name to sleeping worlds
-        this.sleepingWorlds.put(world.getName(), task.getTaskId());
+        }, 60L));
     }
 
     @EventHandler
-    public void onBedLeave(PlayerBedLeaveEvent event) {
-        String worldName = event.getBed().getWorld().getName();
-        int task = this.sleepingWorlds.get(worldName);
+    public void onPlayerBedLeave(PlayerBedLeaveEvent e) {
+        World world = e.getBed().getWorld();
+        BukkitTask task = this.sleepingWorlds.get(world.getName());
 
-        // cancel the ongoing task
-        Bukkit.getScheduler().cancelTask(task);
+        if(task == null) {
+            return;
+        }
+
+        // cancel the sleep task if player leaves their bed
+        task.cancel();
     }
 }
