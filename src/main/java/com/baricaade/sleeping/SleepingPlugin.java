@@ -76,8 +76,8 @@ public class SleepingPlugin extends JavaPlugin implements Listener {
         this.tasks.remove(world.getUID());
         task.cancel();
 
-        // only broadcast if it is nighttime
-        if(!isDay(world)) {
+        // only broadcast if it is nighttime or if there is an ongoing storm
+        if(!isDay(world) || !world.isClearWeather()) {
             world.getPlayers().forEach(p -> p.sendMessage(color(getConfig().getString("sleep-cancel-message").replace("{player}", player.getName()))));
         }
     }
