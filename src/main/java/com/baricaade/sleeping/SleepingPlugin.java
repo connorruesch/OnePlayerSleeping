@@ -46,7 +46,7 @@ public class SleepingPlugin extends JavaPlugin implements Listener {
         World world = e.getBed().getWorld();
         Player player = e.getPlayer();
 
-        this.tasks.computeIfAbsent(world.getUID(), id -> Bukkit.getScheduler().runTaskLater(this, () -> {
+        this.tasks.putIfAbsent(world.getUID(), Bukkit.getScheduler().runTaskLater(this, () -> {
             if(!isDay(world)) {
                 world.setTime(0L);
             }
